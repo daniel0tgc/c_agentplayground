@@ -12,11 +12,22 @@ if _db_url.startswith("postgres://"):
 elif _db_url.startswith("postgresql://") and "+asyncpg" not in _db_url:
     _db_url = _db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-_ssl = not ("localhost" in _db_url or "127.0.0.1" in _db_url)
+# SSL rules:
+# - localhost / 127.0.0.1  → no SSL (local dev)
+# - *.railway.internal      → no SSL (Railway private network, SSL not supported)
+# - everything else         → require SSL (Railway public proxy, cloud DBs, etc.)
+_no_ssl_hosts = ("localhost", "127.0.0.1", ".railway.internal")
+_use_ssl = not any(h in _db_url for h in _no_ssl_hosts)
+
+# Log the effective connection config at startup (mask password)
+import re as _re
+_masked = _re.sub(r"://([^:]+):([^@]+)@", r"://\1:***@", _db_url)
+logger.info("DB connect → %s  ssl=%s", _masked, _use_ssl)
+
 engine = create_async_engine(
     _db_url,
     echo=False,
-    connect_args={"ssl": "require"} if _ssl else {},
+    connect_args={"ssl": "require"} if _use_ssl else {},
 )
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
