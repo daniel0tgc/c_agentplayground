@@ -30,9 +30,9 @@ app = FastAPI(
 
 @app.get("/health", include_in_schema=False)
 async def health():
-    """Liveness probe used by Railway health checks."""
-    from fastapi.responses import JSONResponse
-    return JSONResponse({"status": "ok"})
+    """Liveness probe used by Railway health checks. Always returns 200."""
+    from .database import db_ready
+    return JSONResponse({"status": "ok", "db": "ready" if db_ready else "unavailable"})
 
 app.add_middleware(
     CORSMiddleware,
