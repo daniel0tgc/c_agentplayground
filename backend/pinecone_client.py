@@ -31,15 +31,23 @@ def get_index():
         return _index
 
     pc = _client()
-    existing = [idx.name for idx in pc.list_indexes()]
-    if settings.PINECONE_INDEX not in existing:
-        pc.create_index(
-            name=settings.PINECONE_INDEX,
-            dimension=_INDEX_DIMENSION,
-            metric=_METRIC,
-            spec=ServerlessSpec(cloud="aws", region="us-east-1"),
-        )
-    _index = pc.Index(settings.PINECONE_INDEX)
+    idx_val = settings.PINECONE_INDEX
+
+    if idx_val.startswith("https://"):
+        # Full host URL provided (e.g. from Pinecone dashboard) — connect directly
+        _index = pc.Index(host=idx_val)
+    else:
+        # Index name provided — look up and create if missing
+        existing = [i.name for i in pc.list_indexes()]
+        if idx_val not in existing:
+            pc.create_index(
+                name=idx_val,
+                dimension=_INDEX_DIMENSION,
+                metric=_METRIC,
+                spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+            )
+        _index = pc.Index(idx_val)
+
     return _index
 
 

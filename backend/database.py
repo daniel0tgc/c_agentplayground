@@ -8,7 +8,12 @@ if _db_url.startswith("postgres://"):
 elif _db_url.startswith("postgresql://") and "+asyncpg" not in _db_url:
     _db_url = _db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-engine = create_async_engine(_db_url, echo=False)
+_ssl = not ("localhost" in _db_url or "127.0.0.1" in _db_url)
+engine = create_async_engine(
+    _db_url,
+    echo=False,
+    connect_args={"ssl": True} if _ssl else {},
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
