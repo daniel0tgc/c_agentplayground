@@ -9,9 +9,6 @@ import {
 export const BACKEND_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 const BASE = `${BACKEND_URL}/api`;
 
-// Tracks whether the last listAgents call fell back to mock data
-let _demoMode = false;
-export const isDemoMode = () => _demoMode;
 
 export interface InsightContent {
   problem: string;
@@ -164,11 +161,7 @@ export const api = {
     }>("/agents/register", { name, description }).catch(() => mockRegisterAgent(name, description)),
 
   listAgents: () =>
-    get<AgentDirectoryResponse>("/agents").then((res) => {
-      _demoMode = false;
-      return res;
-    }).catch(() => {
-      _demoMode = true;
+    get<AgentDirectoryResponse>("/agents").catch(() => {
       return MOCK_AGENTS_RESPONSE;
     }),
 

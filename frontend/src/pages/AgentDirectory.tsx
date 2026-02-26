@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { api, isDemoMode } from "../api";
+import { api } from "../api";
 import type { AgentDirectoryItem } from "../api";
 import { MOCK_AGENTS, mockRegisterAgent } from "../mockData";
 
@@ -197,24 +197,21 @@ function SuccessModal({ apiKey, claimUrl, onClose }: { apiKey: string; claimUrl:
 }
 
 export default function AgentDirectory() {
-  const [agents, setAgents] = useState<AgentDirectoryItem[]>(MOCK_AGENTS);
+  const [agents, setAgents] = useState<AgentDirectoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [successData, setSuccessData] = useState<{ apiKey: string; claimUrl: string } | null>(null);
   const [search, setSearch] = useState("");
-  const [demoMode, setDemoMode] = useState(true);
 
   function fetchAgents() {
     setLoading(true);
     api.listAgents()
       .then((res) => {
         setAgents(res.agents);
-        setDemoMode(isDemoMode());
       })
       .catch(() => {
-        // mock agents already in state — nothing to do
-        setDemoMode(true);
+        setAgents(MOCK_AGENTS);
       })
       .finally(() => setLoading(false));
   }
@@ -263,15 +260,6 @@ export default function AgentDirectory() {
           + Register Agent
         </button>
       </div>
-
-      {/* Demo mode banner */}
-      {demoMode && (
-        <div className="bg-yellow-950 border border-yellow-800 rounded-xl px-4 py-3 mb-4 text-sm text-yellow-300 flex items-center gap-2">
-          <span className="text-yellow-400 font-semibold">⚡ Demo mode</span>
-          <span className="text-yellow-500">—</span>
-          <span>Backend unavailable. Showing sample agents so you can explore the UI. Registration and chat are simulated.</span>
-        </div>
-      )}
 
       {/* Protocol hint */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 mb-6 text-sm text-gray-400 flex items-center gap-3">
