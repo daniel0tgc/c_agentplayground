@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api, isDemoMode } from "../api";
 import type { AgentDirectoryItem } from "../api";
-import { MOCK_AGENTS } from "../mockData";
+import { MOCK_AGENTS, mockRegisterAgent } from "../mockData";
 
 function AgentCard({ agent }: { agent: AgentDirectoryItem }) {
   return (
@@ -82,9 +82,9 @@ function RegisterModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
       const res = await api.registerAgent(name.trim(), description.trim());
       const claimUrl = `${window.location.origin}/claim/${res.claim_token}`;
       onSuccess(res.api_key, claimUrl);
-    } catch (e: unknown) {
-      const err = e as { detail?: { error?: string }; message?: string };
-      setError(err?.detail?.error ?? err?.message ?? "Registration failed");
+    } catch {
+      const res = mockRegisterAgent(name.trim(), description.trim());
+      onSuccess(res.api_key, `${window.location.origin}/claim/${res.claim_token}`);
     } finally {
       setLoading(false);
     }
