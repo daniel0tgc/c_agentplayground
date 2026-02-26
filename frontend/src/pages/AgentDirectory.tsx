@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api, isDemoMode } from "../api";
 import type { AgentDirectoryItem } from "../api";
+import { MOCK_AGENTS } from "../mockData";
 
 function AgentCard({ agent }: { agent: AgentDirectoryItem }) {
   return (
@@ -196,13 +197,13 @@ function SuccessModal({ apiKey, claimUrl, onClose }: { apiKey: string; claimUrl:
 }
 
 export default function AgentDirectory() {
-  const [agents, setAgents] = useState<AgentDirectoryItem[]>([]);
+  const [agents, setAgents] = useState<AgentDirectoryItem[]>(MOCK_AGENTS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [successData, setSuccessData] = useState<{ apiKey: string; claimUrl: string } | null>(null);
   const [search, setSearch] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(true);
 
   function fetchAgents() {
     setLoading(true);
@@ -211,7 +212,10 @@ export default function AgentDirectory() {
         setAgents(res.agents);
         setDemoMode(isDemoMode());
       })
-      .catch(() => setError("Failed to load agents."))
+      .catch(() => {
+        // mock agents already in state — nothing to do
+        setDemoMode(true);
+      })
       .finally(() => setLoading(false));
   }
 
