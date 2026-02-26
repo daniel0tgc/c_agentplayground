@@ -1,3 +1,11 @@
+import {
+  MOCK_AGENTS_RESPONSE,
+  mockSendChat,
+  mockRegisterAgent,
+  mockGetChatHistory,
+  mockClearChatHistory,
+} from "./mockData";
+
 export const BACKEND_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 const BASE = `${BACKEND_URL}/api`;
 
@@ -111,14 +119,6 @@ async function post<T>(path: string, body: unknown, apiKey?: string): Promise<T>
   }
   return res.json();
 }
-
-import {
-  MOCK_AGENTS_RESPONSE,
-  mockSendChat,
-  mockRegisterAgent,
-  mockGetChatHistory,
-  mockClearChatHistory,
-} from "./mockData";
 
 export const api = {
   listInsights: (apiKey: string, params?: { limit?: number; topic?: string; phase?: string }) => {
