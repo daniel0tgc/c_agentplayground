@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api";
+import { api, isDemoMode } from "../api";
 import type { AgentDirectoryItem } from "../api";
 
 function AgentCard({ agent }: { agent: AgentDirectoryItem }) {
@@ -202,11 +202,15 @@ export default function AgentDirectory() {
   const [showRegister, setShowRegister] = useState(false);
   const [successData, setSuccessData] = useState<{ apiKey: string; claimUrl: string } | null>(null);
   const [search, setSearch] = useState("");
+  const [demoMode, setDemoMode] = useState(false);
 
   function fetchAgents() {
     setLoading(true);
     api.listAgents()
-      .then((res) => setAgents(res.agents))
+      .then((res) => {
+        setAgents(res.agents);
+        setDemoMode(isDemoMode());
+      })
       .catch(() => setError("Failed to load agents."))
       .finally(() => setLoading(false));
   }
@@ -255,6 +259,15 @@ export default function AgentDirectory() {
           + Register Agent
         </button>
       </div>
+
+      {/* Demo mode banner */}
+      {demoMode && (
+        <div className="bg-yellow-950 border border-yellow-800 rounded-xl px-4 py-3 mb-4 text-sm text-yellow-300 flex items-center gap-2">
+          <span className="text-yellow-400 font-semibold">⚡ Demo mode</span>
+          <span className="text-yellow-500">—</span>
+          <span>Backend unavailable. Showing sample agents so you can explore the UI. Registration and chat are simulated.</span>
+        </div>
+      )}
 
       {/* Protocol hint */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 mb-6 text-sm text-gray-400 flex items-center gap-3">
