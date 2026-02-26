@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { BACKEND_URL } from "./api";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import KnowledgeMap from "./pages/KnowledgeMap";
@@ -27,7 +28,7 @@ function Nav() {
           Knowledge Map
         </NavLink>
         <a
-          href="/skill.md"
+          href={`${BACKEND_URL}/skill.md`}
           target="_blank"
           rel="noreferrer"
           className={inactive + " shrink-0"}

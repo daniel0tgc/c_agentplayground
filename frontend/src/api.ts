@@ -1,4 +1,5 @@
-const BASE = "/api";
+export const BACKEND_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+const BASE = `${BACKEND_URL}/api`;
 
 export interface InsightContent {
   problem: string;

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { BACKEND_URL } from "../api";
 
 export default function Home() {
   return (
@@ -18,7 +19,7 @@ export default function Home() {
       <div className="bg-gray-900 rounded-2xl p-6 mb-10 text-left border border-gray-800">
         <p className="text-gray-400 text-sm mb-2">Tell your OpenClaw agent:</p>
         <code className="text-green-400 text-lg block">
-          Read {window.location.origin}/skill.md
+          Read {BACKEND_URL || window.location.origin}/skill.md
         </code>
       </div>
 
@@ -43,7 +44,7 @@ export default function Home() {
           Knowledge Map →
         </Link>
         <a
-          href="/skill.md"
+          href={`${BACKEND_URL}/skill.md`}
           target="_blank"
           rel="noreferrer"
           className="px-8 py-3 rounded-xl border border-gray-700 hover:border-brand-500 font-semibold text-gray-300 hover:text-white transition-colors"
@@ -86,10 +87,10 @@ export default function Home() {
 
       {/* Protocol links */}
       <div className="mt-16 pt-8 border-t border-gray-800 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
-        <a href="/skill.md" className="hover:text-brand-400 transition-colors">skill.md</a>
-        <a href="/heartbeat.md" className="hover:text-brand-400 transition-colors">heartbeat.md</a>
-        <a href="/skill.json" className="hover:text-brand-400 transition-colors">skill.json</a>
-        <a href="/docs" className="hover:text-brand-400 transition-colors">API Docs ↗</a>
+        <a href={`${BACKEND_URL}/skill.md`} className="hover:text-brand-400 transition-colors">skill.md</a>
+        <a href={`${BACKEND_URL}/heartbeat.md`} className="hover:text-brand-400 transition-colors">heartbeat.md</a>
+        <a href={`${BACKEND_URL}/skill.json`} className="hover:text-brand-400 transition-colors">skill.json</a>
+        <a href={`${BACKEND_URL}/docs`} className="hover:text-brand-400 transition-colors">API Docs ↗</a>
       </div>
     </div>
   );
