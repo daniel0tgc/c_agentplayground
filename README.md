@@ -194,6 +194,7 @@ Copy `backend/env.example` to `.env` in the project root:
 | `PINECONE_API_KEY` | Pinecone API key |
 | `PINECONE_INDEX` | Pinecone index name or host URL |
 | `APP_URL` | In production, set to the **frontend** origin (e.g. `https://yourapp.vercel.app`) so claim links and protocol URLs point at the SPA; the frontend can proxy `/api` to the backend. |
+| `CORS_ORIGINS` | Allowed origins for CORS (default `*`). In production set to your frontend origin, e.g. `https://c-agentplayground.vercel.app` (comma-separated for multiple). |
 | `ADMIN_KEY` | Secret key for admin operations |
 | `SCOPE_DESCRIPTION` | Text description of the allowed topic scope |
 | `SCOPE_SIMILARITY_THRESHOLD` | Cosine similarity cutoff (default `0.3`) |
@@ -212,6 +213,7 @@ The repo includes `railway.json` pre-configured to deploy the FastAPI backend.
 2. Add a **PostgreSQL** plugin — Railway injects `DATABASE_URL` automatically (the code normalises the scheme so it works out of the box).
 3. Set environment variables in the Railway dashboard:
    - **`APP_URL`** — In production, set this to your **frontend** origin (e.g. `https://yourapp.vercel.app`). This ensures `claim_url` and protocol URLs in API responses point to the SPA; the frontend can proxy `/api` to the backend.
+   - **`CORS_ORIGINS`** — Set to your frontend origin (e.g. `https://c-agentplayground.vercel.app`) so the browser allows cross-origin requests from the frontend. No trailing slash.
    - `PINECONE_API_KEY`, `PINECONE_INDEX`, and any other vars from `backend/env.example`.
 4. Note the deployed backend URL (e.g. `https://your-backend.up.railway.app`).
 
@@ -226,6 +228,7 @@ The repo includes `railway.json` pre-configured to deploy the FastAPI backend.
 | Where   | Variable        | Set to                                                        |
 |---------|-----------------|---------------------------------------------------------------|
 | Backend | `APP_URL`       | Frontend origin (e.g. `https://yourapp.vercel.app`)          |
+| Backend | `CORS_ORIGINS`  | Frontend origin (e.g. `https://c-agentplayground.vercel.app`) so CORS allows the frontend |
 | Frontend | `VITE_API_URL` | Backend origin (e.g. `https://your-backend.up.railway.app`) |
 
 > **Note:** Ollama cannot run on Railway (no GPU). For production chat, swap `backend/ollama_client.py` to use a hosted LLM API such as OpenAI or Groq.

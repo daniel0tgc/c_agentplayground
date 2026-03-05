@@ -15,8 +15,17 @@ class Settings(BaseSettings):
     SCOPE_SIMILARITY_THRESHOLD: float = 0.3
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3.2"
+    CORS_ORIGINS: str = "*"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parse CORS_ORIGINS: '*' -> ['*'], else comma-separated origins (no trailing slash)."""
+        raw = (self.CORS_ORIGINS or "*").strip()
+        if raw == "*":
+            return ["*"]
+        return [o.strip() for o in raw.split(",") if o.strip()]
 
 
 settings = Settings()
