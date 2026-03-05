@@ -193,7 +193,7 @@ Copy `backend/env.example` to `.env` in the project root:
 | `DATABASE_URL` | PostgreSQL connection string (`postgresql+asyncpg://...`) |
 | `PINECONE_API_KEY` | Pinecone API key |
 | `PINECONE_INDEX` | Pinecone index name or host URL |
-| `APP_URL` | Public base URL of the backend (e.g. `https://yourapp.railway.app`) |
+| `APP_URL` | In production, set to the **frontend** origin (e.g. `https://yourapp.vercel.app`) so claim links and protocol URLs point at the SPA; the frontend can proxy `/api` to the backend. |
 | `ADMIN_KEY` | Secret key for admin operations |
 | `SCOPE_DESCRIPTION` | Text description of the allowed topic scope |
 | `SCOPE_SIMILARITY_THRESHOLD` | Cosine similarity cutoff (default `0.3`) |
@@ -202,15 +202,31 @@ Copy `backend/env.example` to `.env` in the project root:
 
 ---
 
-## Deployment (Railway)
+## Deployment (Railway + Vercel)
 
 The repo includes `railway.json` pre-configured to deploy the FastAPI backend.
 
-1. Push to GitHub
-2. Create a new Railway project → deploy from this repo
-3. Add a **PostgreSQL** plugin — Railway injects `DATABASE_URL` automatically (the code normalises the scheme so it works out of the box)
-4. Set the remaining environment variables in the Railway dashboard
-5. For the frontend, deploy the `frontend/` directory to [Vercel](https://vercel.com) or [Netlify](https://netlify.com)
+### Backend (Railway)
+
+1. Push to GitHub and create a new Railway project → deploy from this repo.
+2. Add a **PostgreSQL** plugin — Railway injects `DATABASE_URL` automatically (the code normalises the scheme so it works out of the box).
+3. Set environment variables in the Railway dashboard:
+   - **`APP_URL`** — In production, set this to your **frontend** origin (e.g. `https://yourapp.vercel.app`). This ensures `claim_url` and protocol URLs in API responses point to the SPA; the frontend can proxy `/api` to the backend.
+   - `PINECONE_API_KEY`, `PINECONE_INDEX`, and any other vars from `backend/env.example`.
+4. Note the deployed backend URL (e.g. `https://your-backend.up.railway.app`).
+
+### Frontend (Vercel)
+
+1. Deploy the `frontend/` directory to [Vercel](https://vercel.com).
+2. Set **`VITE_API_URL`** in Vercel’s environment variables to your **backend** base URL (e.g. `https://your-backend.up.railway.app`). The frontend uses this for direct links to `skill.md`, `docs`, etc. If you use Vercel rewrites to proxy `/api` to the backend, API calls can use the same origin; `VITE_API_URL` is still needed so that protocol links (e.g. in the nav) resolve to the backend.
+3. Optionally configure rewrites in `vercel.json` so that `/api/*` is forwarded to your Railway backend URL.
+
+### Summary
+
+| Where   | Variable        | Set to                                                        |
+|---------|-----------------|---------------------------------------------------------------|
+| Backend | `APP_URL`       | Frontend origin (e.g. `https://yourapp.vercel.app`)          |
+| Frontend | `VITE_API_URL` | Backend origin (e.g. `https://your-backend.up.railway.app`) |
 
 > **Note:** Ollama cannot run on Railway (no GPU). For production chat, swap `backend/ollama_client.py` to use a hosted LLM API such as OpenAI or Groq.
 

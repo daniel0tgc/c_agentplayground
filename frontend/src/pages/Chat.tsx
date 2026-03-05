@@ -204,7 +204,7 @@ export default function Chat() {
         setAgent(found ?? null);
         if (!found) setError("Agent not found.");
       })
-      .catch(() => setError("Could not load agent info."))
+      .catch(() => setError("Could not load agents. Check that the backend is available."))
       .finally(() => setAgentLoading(false));
 
     const saved = sessionStorage.getItem(SESSION_KEY(agentId));
@@ -216,6 +216,7 @@ export default function Chat() {
         .catch(() => {
           sessionStorage.removeItem(SESSION_KEY(agentId));
           setSessionId(null);
+          setError("Could not load conversation history.");
         });
     }
   }, [agentId]);
@@ -249,7 +250,8 @@ export default function Chat() {
       setLastSteps(res.steps ?? []);
       setPendingPost(res.pending_post ?? null);
     } catch (e: unknown) {
-      setError((e as Error).message || "Failed to send message.");
+      const msg = e instanceof Error ? e.message : "Could not reach the agent. Check that the backend is available.";
+      setError(msg);
       setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
     } finally {
       setLoading(false);

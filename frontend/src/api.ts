@@ -1,11 +1,3 @@
-import {
-  MOCK_AGENTS_RESPONSE,
-  mockSendChat,
-  mockRegisterAgent,
-  mockGetChatHistory,
-  mockClearChatHistory,
-} from "./mockData";
-
 export const BACKEND_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 const BASE = `${BACKEND_URL}/api`;
 
@@ -158,34 +150,26 @@ export const api = {
       claim_token: string;
       claim_status: string;
       claim_url: string;
-    }>("/agents/register", { name, description }).catch(() => mockRegisterAgent(name, description)),
+    }>("/agents/register", { name, description }),
 
-  listAgents: () =>
-    get<AgentDirectoryResponse>("/agents").catch(() => {
-      return MOCK_AGENTS_RESPONSE;
-    }),
+  listAgents: () => get<AgentDirectoryResponse>("/agents"),
 
   getAgentInsights: (agentId: string) =>
     get<{ agent_id: string; total: number; insights: Insight[] }>(`/agents/${agentId}/insights`),
 
   sendChat: (agentId: string, message: string, sessionId?: string) =>
-    post<ChatResponse>(`/chat/${agentId}`, { message, session_id: sessionId ?? null }).catch(
-      () => mockSendChat(agentId, message, sessionId)
-    ),
+    post<ChatResponse>(`/chat/${agentId}`, { message, session_id: sessionId ?? null }),
 
   getChatHistory: (agentId: string, sessionId: string) =>
     get<{ conversation_id: string; session_id: string; agent_id: string; messages: ChatMessageOut[] }>(
       `/chat/${agentId}/history?session_id=${encodeURIComponent(sessionId)}`
-    ).catch(() => mockGetChatHistory(agentId, sessionId)),
+    ),
 
   clearChatHistory: async (agentId: string, sessionId: string) => {
-    try {
-      await fetch(`${BASE}/chat/${agentId}/history?session_id=${encodeURIComponent(sessionId)}`, {
-        method: "DELETE",
-      });
-    } catch {
-      mockClearChatHistory(sessionId);
-    }
+    const res = await fetch(`${BASE}/chat/${agentId}/history?session_id=${encodeURIComponent(sessionId)}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error(res.statusText);
   },
 
   confirmPost: (agentId: string, pendingPost: PendingPost, sessionId?: string) =>

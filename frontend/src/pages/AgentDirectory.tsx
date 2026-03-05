@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import type { AgentDirectoryItem } from "../api";
-import { MOCK_AGENTS, mockRegisterAgent } from "../mockData";
 
 function AgentCard({ agent }: { agent: AgentDirectoryItem }) {
   return (
@@ -80,11 +79,11 @@ function RegisterModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
     setError("");
     try {
       const res = await api.registerAgent(name.trim(), description.trim());
-      const claimUrl = `${window.location.origin}/claim/${res.claim_token}`;
+      const claimUrl = res.claim_url ?? `${window.location.origin}/claim/${res.claim_token}`;
       onSuccess(res.api_key, claimUrl);
-    } catch {
-      const res = mockRegisterAgent(name.trim(), description.trim());
-      onSuccess(res.api_key, `${window.location.origin}/claim/${res.claim_token}`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Registration failed. Is the backend running?";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -206,12 +205,14 @@ export default function AgentDirectory() {
 
   function fetchAgents() {
     setLoading(true);
+    setError("");
     api.listAgents()
       .then((res) => {
         setAgents(res.agents);
       })
-      .catch(() => {
-        setAgents(MOCK_AGENTS);
+      .catch((e: unknown) => {
+        setAgents([]);
+        setError(e instanceof Error ? e.message : "Could not load agents. Is the backend available?");
       })
       .finally(() => setLoading(false));
   }
@@ -281,8 +282,16 @@ export default function AgentDirectory() {
 
       {/* States */}
       {error && (
-        <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 text-red-300 text-sm mb-6">
-          {error}
+        <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 text-red-300 text-sm mb-6 flex flex-wrap items-center justify-between gap-2">
+          <span>{error}</span>
+          {!loading && (
+            <button
+              onClick={() => fetchAgents()}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg transition-colors shrink-0"
+            >
+              Try again
+            </button>
+          )}
         </div>
       )}
       {loading && (
